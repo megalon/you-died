@@ -8,6 +8,7 @@
         Height="{x:Static SystemParameters.PrimaryScreenHeight}" 
         Width="{x:Static SystemParameters.PrimaryScreenWidth}" 
         WindowStartupLocation="CenterScreen"
+        ShowInTaskbar="False"
         AllowsTransparency="True" WindowStyle="None" Topmost="False">
     <Window.Background>
         <SolidColorBrush Color="White" Opacity="0.1"/>
