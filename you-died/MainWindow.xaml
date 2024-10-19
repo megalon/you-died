@@ -9,11 +9,12 @@
         Width="{x:Static SystemParameters.PrimaryScreenWidth}" 
         WindowStartupLocation="CenterScreen"
         ShowInTaskbar="False"
-        AllowsTransparency="True" WindowStyle="None" Topmost="False">
+        Visibility="Hidden"
+        AllowsTransparency="True" WindowStyle="None" Topmost="True">
     <Window.Background>
-        <SolidColorBrush Color="White" Opacity="0.1"/>
+        <SolidColorBrush Color="White" Opacity="0"/>
     </Window.Background>
-    <Grid Opacity="0.5">
+    <Grid x:Name="Main" Opacity="0">
         <StackPanel VerticalAlignment="Center">
             <Rectangle Height="50" >
                 <Rectangle.Fill>
