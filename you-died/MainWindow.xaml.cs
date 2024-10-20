@@ -23,15 +23,28 @@ namespace you_died
         private double _targetOpacity;
         private double _lerpAmount;
         private const double _maxOpacity = 0.6;
-        private double _heartbeatTimer = 0;
-        private double _heartbeatMaxTime = 5;
+        private double _updateProcessesTimer = 0;
+        private double _delayBetweenProcessUpdates = 3;
 
-        private Dictionary<int, Process> _processDict;
+        private Dictionary<int, ProcessInfo> _processDict;
+
+        // This struct helps keep track of all processes, and lets us ignore invalid ones
+        private struct ProcessInfo
+        {
+            public ProcessInfo (Process process, bool ignore)
+            {
+                this.Process = process;
+                this.Ignore = ignore;
+            }
+
+            public readonly bool Ignore;
+            public readonly Process Process;
+        }
 
         public MainWindow()
         {
             InitializeComponent();
-            _processDict = new Dictionary<int, Process>();
+            _processDict = new Dictionary<int, ProcessInfo>();
 
             _lastFrameTime = DateTime.Now;
 
@@ -64,9 +77,13 @@ namespace you_died
                     process.EnableRaisingEvents = true;
                     process.Exited += _processToMonitor_Exited;
 
-                    _processDict.Add(process.Id, process);
+                    _processDict.Add(process.Id, new ProcessInfo(process, false));
                 }
-                catch { }
+                catch {
+                    // We don't want to enter this catch block every heartbeat for the same invalid processes,
+                    // so keep track of the process and mark it as "ignore"
+                    _processDict.Add(process.Id, new ProcessInfo(process, true));
+                }
             }
         }
 
@@ -75,6 +92,20 @@ namespace you_died
             Process process = sender as Process;
 
             if (process == null) return;
+
+            if (!_processDict.ContainsKey(process.Id))
+            {
+                Debug.WriteLine($"_processDict didn't contain process {process.Id} - {process.ProcessName}");
+                return;
+            }
+
+            ProcessInfo processInfo = _processDict[process.Id];
+
+            if (processInfo.Ignore)
+            {
+                _processDict.Remove(process.Id);
+                return;
+            }
 
             int exitCode = process.ExitCode;
 
@@ -90,11 +121,12 @@ namespace you_died
 
                     _lerpAmount = 0;
                     _targetOpacity = _maxOpacity;
-                    
+
                     Message.Content = $"{process.ProcessName} EXPLODED";
                     _processDict.Remove(process.Id);
                 });
-            } else
+            }
+            else
             {
                 _processDict.Remove(process.Id);
             }
@@ -105,14 +137,14 @@ namespace you_died
             DateTime currentFrameTime = DateTime.Now;
 
             double deltaTime = (currentFrameTime - _lastFrameTime).TotalSeconds;
-            _heartbeatTimer += deltaTime;
+            _updateProcessesTimer += deltaTime;
 
             UpdateMainOpacity(deltaTime);
 
-            if (_heartbeatTimer > _heartbeatMaxTime)
+            if (_updateProcessesTimer > _delayBetweenProcessUpdates)
             {
-                Debug.WriteLine("heartbeat. collecting processes...");
-                _heartbeatTimer = 0;
+                Debug.WriteLine("collecting processes...");
+                _updateProcessesTimer = 0;
                 CollectProcesses();
             }
 
