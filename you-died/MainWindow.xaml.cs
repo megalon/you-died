@@ -107,29 +107,29 @@ namespace you_died
                 return;
             }
 
-            int exitCode = process.ExitCode;
-
-            if (exitCode == 0)
-            {
-                // We are in a different thread, so
-                // Access the Dispatcher of the main window
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    Main.Opacity = 0;
-
-                    Visibility = Visibility.Visible;
-
-                    _lerpAmount = 0;
-                    _targetOpacity = _maxOpacity;
-
-                    Message.Content = $"{process.ProcessName} EXPLODED";
-                    _processDict.Remove(process.Id);
-                });
-            }
-            else
+            // If process exited normally
+            if (process.ExitCode == 0)
             {
                 _processDict.Remove(process.Id);
+                return;
             }
+
+            // Otherwise app has crashed
+
+            // We are in a different thread, so
+            // Access the Dispatcher of the main window
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                Main.Opacity = 0;
+
+                Visibility = Visibility.Visible;
+
+                _lerpAmount = 0;
+                _targetOpacity = _maxOpacity;
+
+                Message.Content = $"{process.ProcessName} EXPLODED";
+                _processDict.Remove(process.Id);
+            });
         }
 
         private void Update(object sender, EventArgs e)
