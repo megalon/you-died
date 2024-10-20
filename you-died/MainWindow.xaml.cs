@@ -20,9 +20,13 @@ namespace you_died
     {
         private DateTime _lastFrameTime;
 
-        private double _targetOpacity;
         private double _lerpAmount;
+        private double _targetOpacity;
         private const double _maxOpacity = 0.6;
+
+        private double _textLerpAmount = 0;
+        private double _targetFontSize = 150;
+
         private double _updateProcessesTimer = 0;
         private double _delayBetweenProcessUpdates = 3;
 
@@ -181,9 +185,6 @@ namespace you_died
                 _targetOpacity = 0;
             }
         }
-
-        private double _textLerpAmount = 0;
-        private double _targetFontSize = 150;
 
         private void UpdateTextSize(double deltaTime)
         {
