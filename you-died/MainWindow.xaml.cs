@@ -127,7 +127,14 @@ namespace you_died
                 _lerpAmount = 0;
                 _targetOpacity = _maxOpacity;
 
-                Message.Content = $"{process.ProcessName} EXPLODED";
+                _textLerpAmount = 0;
+                Message.FontSize = 100;
+
+                string msg = $"{process.ProcessName} EXPLODED";
+
+                Message.Text = msg;
+                MessageDummy.Text = msg;
+
                 _processDict.Remove(process.Id);
             });
         }
@@ -140,6 +147,7 @@ namespace you_died
             _updateProcessesTimer += deltaTime;
 
             UpdateMainOpacity(deltaTime);
+            UpdateTextSize(deltaTime);
 
             if (_updateProcessesTimer > _delayBetweenProcessUpdates)
             {
@@ -171,6 +179,20 @@ namespace you_died
             {
                 _lerpAmount = 0;
                 _targetOpacity = 0;
+            }
+        }
+
+        private double _textLerpAmount = 0;
+        private double _targetFontSize = 150;
+
+        private void UpdateTextSize(double deltaTime)
+        {
+            _textLerpAmount += deltaTime / 40;
+            Message.FontSize = double.Lerp(Message.FontSize, _targetFontSize, _textLerpAmount);
+
+            if (_textLerpAmount > 1)
+            {
+                _textLerpAmount = 1;
             }
         }
     }

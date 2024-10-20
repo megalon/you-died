@@ -9,12 +9,12 @@
         Width="{x:Static SystemParameters.PrimaryScreenWidth}" 
         WindowStartupLocation="CenterScreen"
         ShowInTaskbar="False"
-        Visibility="Hidden"
+        Visibility="Visible"
         AllowsTransparency="True" WindowStyle="None" Topmost="True">
     <Window.Background>
         <SolidColorBrush Color="White" Opacity="0"/>
     </Window.Background>
-    <Grid x:Name="Main" Opacity="0">
+    <Grid x:Name="Main" Opacity="1">
         <StackPanel VerticalAlignment="Center">
             <Rectangle Height="50" >
                 <Rectangle.Fill>
@@ -25,7 +25,7 @@
                 </Rectangle.Fill>
             </Rectangle>
             <StackPanel Background="Black">
-                <Label x:Name="Message" Content="YOU DIED" FontSize="100" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" FontFamily="Perpetua Titling MT" />
+                <TextBlock x:Name="MessageDummy" FontSize="100" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Black" FontFamily="Perpetua Titling MT" TextWrapping="Wrap" TextAlignment="Center" Padding="20,0,30,0" Text="YOU DIED" />
             </StackPanel>
 
             <Rectangle Height="50" >
@@ -37,5 +37,6 @@
                 </Rectangle.Fill>
             </Rectangle>
         </StackPanel>
+        <TextBlock x:Name="Message" FontSize="100" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" FontFamily="Perpetua Titling MT" TextWrapping="Wrap" TextAlignment="Center" Padding="20,0,30,0" Text="asdf" />
     </Grid>
 </Window>
