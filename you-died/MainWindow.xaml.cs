@@ -23,12 +23,15 @@ namespace you_died
         private double _targetOpacity;
         private double _lerpAmount;
         private const double _maxOpacity = 0.6;
+        private double _heartbeatTimer = 0;
+        private double _heartbeatMaxTime = 5;
 
-        private Process[] _processesToMonitor;
+        private Dictionary<int, Process> _processDict;
 
         public MainWindow()
         {
             InitializeComponent();
+            _processDict = new Dictionary<int, Process>();
 
             _lastFrameTime = DateTime.Now;
 
@@ -36,12 +39,22 @@ namespace you_died
 
             CompositionTarget.Rendering += Update;
 
-            _processesToMonitor = Process.GetProcesses();
+            CollectProcesses();
+        }
 
-            foreach (Process process in _processesToMonitor)
+        private void CollectProcesses()
+        {
+            Process[] _allProcesses = Process.GetProcesses();
+
+            foreach (Process process in _allProcesses)
             {
                 // Skip system processes
                 if (process.SessionId == 0)
+                {
+                    continue;
+                }
+
+                if (_processDict.ContainsKey(process.Id))
                 {
                     continue;
                 }
@@ -50,7 +63,10 @@ namespace you_died
                 {
                     process.EnableRaisingEvents = true;
                     process.Exited += _processToMonitor_Exited;
-                } catch { }
+
+                    _processDict.Add(process.Id, process);
+                }
+                catch { }
             }
         }
 
@@ -76,10 +92,11 @@ namespace you_died
                     _targetOpacity = _maxOpacity;
                     
                     Message.Content = $"{process.ProcessName} EXPLODED";
+                    _processDict.Remove(process.Id);
                 });
             } else
             {
-                MessageBox.Show("App has crashed");
+                _processDict.Remove(process.Id);
             }
         }
 
@@ -88,8 +105,16 @@ namespace you_died
             DateTime currentFrameTime = DateTime.Now;
 
             double deltaTime = (currentFrameTime - _lastFrameTime).TotalSeconds;
+            _heartbeatTimer += deltaTime;
 
             UpdateMainOpacity(deltaTime);
+
+            if (_heartbeatTimer > _heartbeatMaxTime)
+            {
+                Debug.WriteLine("heartbeat. collecting processes...");
+                _heartbeatTimer = 0;
+                CollectProcesses();
+            }
 
             _lastFrameTime = currentFrameTime;
         }
