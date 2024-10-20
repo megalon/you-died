@@ -52,10 +52,10 @@ namespace you_died
 
             CompositionTarget.Rendering += Update;
 
-            CollectProcesses();
+            UpdateProcessesDict();
         }
 
-        private void CollectProcesses()
+        private void UpdateProcessesDict()
         {
             Process[] _allProcesses = Process.GetProcesses();
 
@@ -145,7 +145,7 @@ namespace you_died
             {
                 Debug.WriteLine("collecting processes...");
                 _updateProcessesTimer = 0;
-                CollectProcesses();
+                UpdateProcessesDict();
             }
 
             _lastFrameTime = currentFrameTime;
@@ -172,13 +172,6 @@ namespace you_died
                 _lerpAmount = 0;
                 _targetOpacity = 0;
             }
-        }
-
-        private async Task Delay()
-        {
-            Debug.WriteLine("Waiting....");
-            await Task.Delay(1000);
-            Debug.WriteLine("Done waiting!");
         }
     }
 }
