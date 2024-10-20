@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Text;
 using System.Windows;
@@ -124,6 +124,8 @@ namespace you_died
             // Access the Dispatcher of the main window
             Application.Current.Dispatcher.Invoke(() =>
             {
+                Debug.WriteLine($"Process {process.ProcessName} exited with code {process.ExitCode}");
+
                 Main.Opacity = 0;
 
                 Visibility = Visibility.Visible;
