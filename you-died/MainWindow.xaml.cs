@@ -66,13 +66,14 @@ namespace you_died
 
             foreach (Process process in _allProcesses)
             {
-                // Skip system processes
-                if (process.SessionId == 0)
+                // Ignore if we are already tracking this process
+                if (_processConcurrentDict.ContainsKey(process.Id))
                 {
                     continue;
                 }
 
-                if (_processConcurrentDict.ContainsKey(process.Id))
+                // Skip system processes
+                if (process.SessionId == 0)
                 {
                     continue;
                 }
@@ -80,8 +81,24 @@ namespace you_died
                 // Try and monitor this process. If it fails, we hit the catch block
                 try
                 {
+                    // Ignore processes that somehow don't have a main module.
+                    // This will also throw an error if we don't have permission to access this
+                    if (process.MainModule == null)
+                    {
+                        continue;
+                    }
+
+                    // Ignore windows processes, IE: C:\Windows\...
+                    if (process.MainModule.FileName.ToLowerInvariant().Substring(3).StartsWith("windows\\"))
+                    {
+                        continue;
+                    }
+
+
                     process.EnableRaisingEvents = true;
                     process.Exited += _processToMonitor_Exited;
+
+                    Debug.WriteLine($"{process.Id} {process.MainModule?.FileName}");
 
                     _processConcurrentDict.AddOrUpdate(
                         process.Id, 
