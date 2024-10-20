@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text;
 using System.Windows;
@@ -30,12 +31,12 @@ namespace you_died
         private double _updateProcessesTimer = 0;
         private double _delayBetweenProcessUpdates = 3;
 
-        private Dictionary<int, ProcessInfo> _processDict;
+        private ConcurrentDictionary<int, ProcessInfo> _processConcurrentDict;
 
         // This struct helps keep track of all processes, and lets us ignore invalid ones
         private struct ProcessInfo
         {
-            public ProcessInfo (Process process, bool ignore)
+            public ProcessInfo (Process process, bool ignore = false)
             {
                 this.Process = process;
                 this.Ignore = ignore;
@@ -48,7 +49,7 @@ namespace you_died
         public MainWindow()
         {
             InitializeComponent();
-            _processDict = new Dictionary<int, ProcessInfo>();
+            _processConcurrentDict = new ConcurrentDictionary<int, ProcessInfo>();
 
             _lastFrameTime = DateTime.Now;
 
@@ -71,22 +72,31 @@ namespace you_died
                     continue;
                 }
 
-                if (_processDict.ContainsKey(process.Id))
+                if (_processConcurrentDict.ContainsKey(process.Id))
                 {
                     continue;
                 }
 
+                // Try and monitor this process. If it fails, we hit the catch block
                 try
                 {
                     process.EnableRaisingEvents = true;
                     process.Exited += _processToMonitor_Exited;
 
-                    _processDict.Add(process.Id, new ProcessInfo(process, false));
+                    _processConcurrentDict.AddOrUpdate(
+                        process.Id, 
+                        _ => new ProcessInfo(process), 
+                        (_, _) => new ProcessInfo(process)
+                    );
                 }
                 catch {
                     // We don't want to enter this catch block every heartbeat for the same invalid processes,
                     // so keep track of the process and mark it as "ignore"
-                    _processDict.Add(process.Id, new ProcessInfo(process, true));
+                    _processConcurrentDict.AddOrUpdate(
+                        process.Id,
+                        _ => new ProcessInfo(process, true),
+                        (_, _) => new ProcessInfo(process, true)
+                    );
                 }
             }
         }
@@ -97,24 +107,24 @@ namespace you_died
 
             if (process == null) return;
 
-            if (!_processDict.ContainsKey(process.Id))
+            if (!_processConcurrentDict.ContainsKey(process.Id))
             {
                 Debug.WriteLine($"_processDict didn't contain process {process.Id} - {process.ProcessName}");
                 return;
             }
 
-            ProcessInfo processInfo = _processDict[process.Id];
+            ProcessInfo processInfo = _processConcurrentDict[process.Id];
 
             if (processInfo.Ignore)
             {
-                _processDict.Remove(process.Id);
+                _processConcurrentDict.Remove(process.Id, out processInfo);
                 return;
             }
 
             // If process exited normally
             if (process.ExitCode == 0)
             {
-                _processDict.Remove(process.Id);
+                _processConcurrentDict.Remove(process.Id, out processInfo);
                 return;
             }
 
@@ -140,8 +150,8 @@ namespace you_died
 
                 Message.Text = msg;
                 MessageDummy.Text = msg;
-
-                _processDict.Remove(process.Id);
+                
+                _processConcurrentDict.Remove(process.Id, out processInfo);
             });
         }
 
