@@ -94,10 +94,11 @@ namespace you_died
                         continue;
                     }
 
-                    Debug.WriteLine($"directory: {process.MainModule?.FileName}");
 
                     process.EnableRaisingEvents = true;
                     process.Exited += _processToMonitor_Exited;
+
+                    Debug.WriteLine($"{process.Id} {process.MainModule?.FileName}");
 
                     _processConcurrentDict.AddOrUpdate(
                         process.Id, 
