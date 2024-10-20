@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Media;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -33,6 +34,8 @@ namespace you_died
 
         private ConcurrentDictionary<int, ProcessInfo> _processConcurrentDict;
 
+        private SoundPlayer _soundPlayer;
+
         // This struct helps keep track of all processes, and lets us ignore invalid ones
         private struct ProcessInfo
         {
@@ -50,6 +53,10 @@ namespace you_died
         {
             InitializeComponent();
             _processConcurrentDict = new ConcurrentDictionary<int, ProcessInfo>();
+
+            _soundPlayer = new SoundPlayer();
+            _soundPlayer.SoundLocation = "C:\\Users\\megalon\\Music\\you-died.wav";
+            _soundPlayer.LoadAsync();
 
             _lastFrameTime = DateTime.Now;
 
@@ -146,6 +153,8 @@ namespace you_died
             }
 
             // Otherwise app has crashed
+
+            _soundPlayer.Play();
 
             // We are in a different thread, so
             // Access the Dispatcher of the main window
