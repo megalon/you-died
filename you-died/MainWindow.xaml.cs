@@ -13,6 +13,11 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Forms; // For NotifyIcon
+using System.Drawing; // For Icon
+using Application = System.Windows.Application;
+using Path = System.IO.Path;
+using System.Reflection;
 
 namespace you_died
 {
@@ -36,6 +41,8 @@ namespace you_died
         private ConcurrentDictionary<int, ProcessInfo> _processConcurrentDict;
 
         private SoundPlayer _soundPlayer;
+        
+        private NotifyIcon notifyIcon;
 
         // This struct helps keep track of all processes, and lets us ignore invalid ones
         private struct ProcessInfo
@@ -76,6 +83,35 @@ namespace you_died
             CompositionTarget.Rendering += Update;
 
             UpdateProcessesDict();
+            
+            // Set up the NotifyIcon
+            notifyIcon = new NotifyIcon();
+            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            using (var stream = assembly.GetManifestResourceStream("you_died.you-died.ico"))
+            {
+                notifyIcon.Icon = new System.Drawing.Icon(stream);
+                notifyIcon.Visible = true;
+                notifyIcon.BalloonTipText = "YOU DIED";
+            }
+
+            notifyIcon.Text = "You Died";
+
+            // Optionally create a context menu for the tray icon
+            notifyIcon.ContextMenuStrip = new ContextMenuStrip();
+            notifyIcon.ContextMenuStrip.Items.Add("Test", null, Test_Click);
+            notifyIcon.ContextMenuStrip.Items.Add("Exit", null, Exit_Click);
+        }
+
+        // Handle the "Open" menu click
+        private void Test_Click(object sender, EventArgs e)
+        {
+            TriggerMessage("TEST");
+        }
+
+        // Handle the "Exit" menu click
+        private void Exit_Click(object sender, EventArgs e)
+        {
+            Application.Current.Shutdown();
         }
 
         private void UpdateProcessesDict()
@@ -173,23 +209,28 @@ namespace you_died
             {
                 Debug.WriteLine($"Process {process.ProcessName} exited with code {process.ExitCode}");
 
-                Main.Opacity = 0;
+                TriggerMessage(process.ProcessName);
 
-                Visibility = Visibility.Visible;
-
-                _lerpAmount = 0;
-                _targetOpacity = _maxOpacity;
-
-                _textLerpAmount = 0;
-                Message.FontSize = 100;
-
-                string msg = $"{process.ProcessName} EXPLODED";
-
-                Message.Text = msg;
-                MessageDummy.Text = msg;
-                
                 _processConcurrentDict.Remove(process.Id, out processInfo);
             });
+        }
+
+        private void TriggerMessage(string processName)
+        {
+            Main.Opacity = 0;
+
+            Visibility = Visibility.Visible;
+
+            _lerpAmount = 0;
+            _targetOpacity = _maxOpacity;
+
+            _textLerpAmount = 0;
+            Message.FontSize = 100;
+
+            string msg = $"{processName} EXPLODED";
+
+            Message.Text = msg;
+            MessageDummy.Text = msg;
         }
 
         private void Update(object sender, EventArgs e)

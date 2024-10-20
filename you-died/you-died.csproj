@@ -6,7 +6,16 @@
     <RootNamespace>you_died</RootNamespace>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
+	<UseWPF>true</UseWPF>
+	<UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="you-died.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="you-died.ico" />
+  </ItemGroup>
 
 </Project>
