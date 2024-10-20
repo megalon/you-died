@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.IO;
 using System.Media;
 using System.Text;
 using System.Windows;
@@ -54,8 +55,18 @@ namespace you_died
             InitializeComponent();
             _processConcurrentDict = new ConcurrentDictionary<int, ProcessInfo>();
 
+            string userDataPath = System.IO.Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "YouDied"
+            );
+
+            if (!Directory.Exists(userDataPath))
+            {
+                Directory.CreateDirectory(userDataPath);
+            }
+
             _soundPlayer = new SoundPlayer();
-            _soundPlayer.SoundLocation = "C:\\Users\\megalon\\Music\\you-died.wav";
+            _soundPlayer.SoundLocation = $"{userDataPath}\\you-died.wav";
             _soundPlayer.LoadAsync();
 
             _lastFrameTime = DateTime.Now;
