@@ -40,7 +40,7 @@ namespace you_died
 
         private ConcurrentDictionary<int, ProcessInfo> _processConcurrentDict;
 
-        private SoundPlayer _soundPlayer;
+        private MediaPlayer _mediaPlayer;
         
         private NotifyIcon notifyIcon;
 
@@ -72,9 +72,8 @@ namespace you_died
                 Directory.CreateDirectory(userDataPath);
             }
 
-            _soundPlayer = new SoundPlayer();
-            _soundPlayer.SoundLocation = $"{userDataPath}\\you-died.wav";
-            _soundPlayer.LoadAsync();
+            _mediaPlayer = new MediaPlayer();
+            _mediaPlayer.Open(new Uri($"{userDataPath}\\you-died.wav"));
 
             _lastFrameTime = DateTime.Now;
 
@@ -215,7 +214,7 @@ namespace you_died
 
         private void TriggerMessage(string processName)
         {
-            _soundPlayer.Play();
+            _mediaPlayer.Play();
 
             Main.Opacity = 0;
 
