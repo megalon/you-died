@@ -44,6 +44,8 @@ namespace you_died
         
         private NotifyIcon notifyIcon;
 
+        private SettingsWindow _settingsWindow;
+
         // This struct helps keep track of all processes, and lets us ignore invalid ones
         private struct ProcessInfo
         {
@@ -99,6 +101,10 @@ namespace you_died
             notifyIcon.ContextMenuStrip = new ContextMenuStrip();
             notifyIcon.ContextMenuStrip.Items.Add("Test", null, Test_Click);
             notifyIcon.ContextMenuStrip.Items.Add("Exit", null, Exit_Click);
+
+            _settingsWindow = new SettingsWindow();
+
+            _settingsWindow.Show();
         }
 
         // Handle the "Open" menu click

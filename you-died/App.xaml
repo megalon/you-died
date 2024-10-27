@@ -4,6 +4,10 @@
              xmlns:local="clr-namespace:you_died"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <Style TargetType="Button" >
+            <Setter Property="Padding" Value="20,5,20,5"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="4,4,4,4"/>
+        </Style>
     </Application.Resources>
 </Application>
