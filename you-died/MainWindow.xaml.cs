@@ -201,8 +201,6 @@ namespace you_died
 
             // Otherwise app has crashed
 
-            _soundPlayer.Play();
-
             // We are in a different thread, so
             // Access the Dispatcher of the main window
             Application.Current.Dispatcher.Invoke(() =>
@@ -217,6 +215,8 @@ namespace you_died
 
         private void TriggerMessage(string processName)
         {
+            _soundPlayer.Play();
+
             Main.Opacity = 0;
 
             Visibility = Visibility.Visible;
