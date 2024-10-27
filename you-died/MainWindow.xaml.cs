@@ -99,21 +99,24 @@ namespace you_died
 
             // Optionally create a context menu for the tray icon
             notifyIcon.ContextMenuStrip = new ContextMenuStrip();
+            notifyIcon.ContextMenuStrip.Items.Add("Settings", null, Settings_Click);
             notifyIcon.ContextMenuStrip.Items.Add("Test", null, Test_Click);
+            notifyIcon.ContextMenuStrip.Items.Add(new System.Windows.Forms.ToolStripSeparator());
             notifyIcon.ContextMenuStrip.Items.Add("Exit", null, Exit_Click);
 
             _settingsWindow = new SettingsWindow();
-
-            _settingsWindow.Show();
         }
 
-        // Handle the "Open" menu click
         private void Test_Click(object sender, EventArgs e)
         {
             TriggerMessage("TEST");
         }
 
-        // Handle the "Exit" menu click
+        private void Settings_Click(object sender, EventArgs e)
+        {
+            _settingsWindow.Show();
+        }
+
         private void Exit_Click(object sender, EventArgs e)
         {
             Application.Current.Shutdown();
