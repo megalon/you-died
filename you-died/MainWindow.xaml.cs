@@ -223,6 +223,7 @@ namespace you_died
 
         private void TriggerMessage(string processName)
         {
+            _mediaPlayer.Stop();
             _mediaPlayer.Play();
 
             Main.Opacity = 0;
